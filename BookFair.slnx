@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="ConsoleClient/ConsoleClient.csproj" Id="baaf8ccf-83ec-4959-9fd8-e5662a43c02a" />
+  <Project Path="Core/Core.csproj" Id="e905ea93-d5e0-46e0-bc6f-3d6b104cdd23" />
+</Solution>
