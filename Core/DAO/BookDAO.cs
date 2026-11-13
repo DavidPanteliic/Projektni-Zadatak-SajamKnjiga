@@ -3,27 +3,33 @@ using BookFair.Core.Storage;
 
 namespace BookFair.Core.DAO;
 
+// Source: OISISI, Vezbe 3, CRUDExample (DAO pattern)
+
 // Klasa za pristup podacima o knjigama.
 // Cuva listu knjiga i koristi Storage za ucitavanje i cuvanje u fajl.
 public class BookDAO
 {
     private readonly List<Book> _books;
     private readonly Storage<Book> _storage;
+    private int _nextId;
 
     public BookDAO()
     {
         _storage = new Storage<Book>("books.txt");
         _books = _storage.Load();
+        _nextId = _books.Count == 0 ? 0 : _books.Max(b => b.Id) + 1;
     }
 
     private int GenerateId()
     {
-        if (_books.Count == 0) return 0;
-        return _books[^1].Id + 1;
+        return _nextId++;
     }
 
     public Book AddBook(Book book)
     {
+        if (GetBookByIsbn(book.Isbn) is not null)
+            throw new InvalidOperationException("A book with this ISBN already exists.");
+
         book.Id = GenerateId();
         _books.Add(book);
         _storage.Save(_books);
@@ -34,6 +40,8 @@ public class BookDAO
     {
         Book? oldBook = GetBookById(book.Id);
         if (oldBook is null) return null;
+        if (_books.Any(b => b.Id != book.Id && b.Isbn == book.Isbn))
+            throw new InvalidOperationException("A book with this ISBN already exists.");
 
         oldBook.Isbn = book.Isbn;
         oldBook.Title = book.Title;

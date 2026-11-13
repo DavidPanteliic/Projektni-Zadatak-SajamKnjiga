@@ -3,6 +3,8 @@ using BookFair.Core.Storage;
 
 namespace BookFair.Core.DAO;
 
+// Source: OISISI, Vezbe 3, CRUDExample (DAO pattern)
+
 // Klasa za pristup vezama posetilac - knjiga (lista zelja).
 // Veza nema svoj Id, odredjena je parom VisitorId i BookId.
 public class WishlistItemDAO
@@ -18,6 +20,9 @@ public class WishlistItemDAO
 
     public WishlistItem AddWishlistItem(WishlistItem wishlistItem)
     {
+        if (GetWishlistItem(wishlistItem.VisitorId, wishlistItem.BookId) is not null)
+            throw new InvalidOperationException("This wishlist entry already exists.");
+
         _wishlistItems.Add(wishlistItem);
         _storage.Save(_wishlistItems);
         return wishlistItem;

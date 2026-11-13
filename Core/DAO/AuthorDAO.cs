@@ -3,27 +3,33 @@ using BookFair.Core.Storage;
 
 namespace BookFair.Core.DAO;
 
+// Source: OISISI, Vezbe 3, CRUDExample (DAO pattern)
+
 // Klasa za pristup podacima o autorima.
 // Cuva listu autora i koristi Storage za ucitavanje i cuvanje u fajl.
 public class AuthorDAO
 {
     private readonly List<Author> _authors;
     private readonly Storage<Author> _storage;
+    private int _nextId;
 
     public AuthorDAO()
     {
         _storage = new Storage<Author>("authors.txt");
         _authors = _storage.Load();
+        _nextId = _authors.Count == 0 ? 0 : _authors.Max(a => a.Id) + 1;
     }
 
     private int GenerateId()
     {
-        if (_authors.Count == 0) return 0;
-        return _authors[^1].Id + 1;
+        return _nextId++;
     }
 
     public Author AddAuthor(Author author)
     {
+        if (GetAuthorByIdCardNumber(author.IdCardNumber) is not null)
+            throw new InvalidOperationException("An author with this ID card number already exists.");
+
         author.Id = GenerateId();
         _authors.Add(author);
         _storage.Save(_authors);
@@ -34,6 +40,8 @@ public class AuthorDAO
     {
         Author? oldAuthor = GetAuthorById(author.Id);
         if (oldAuthor is null) return null;
+        if (_authors.Any(a => a.Id != author.Id && a.IdCardNumber == author.IdCardNumber))
+            throw new InvalidOperationException("An author with this ID card number already exists.");
 
         oldAuthor.FirstName = author.FirstName;
         oldAuthor.LastName = author.LastName;

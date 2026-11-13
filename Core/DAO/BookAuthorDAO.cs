@@ -3,6 +3,8 @@ using BookFair.Core.Storage;
 
 namespace BookFair.Core.DAO;
 
+// Source: OISISI, Vezbe 3, CRUDExample (DAO pattern)
+
 // Klasa za pristup vezama knjiga - autor.
 // Veza nema svoj Id, odredjena je parom BookId i AuthorId.
 public class BookAuthorDAO
@@ -18,6 +20,9 @@ public class BookAuthorDAO
 
     public BookAuthor AddBookAuthor(BookAuthor bookAuthor)
     {
+        if (GetBookAuthor(bookAuthor.BookId, bookAuthor.AuthorId) is not null)
+            throw new InvalidOperationException("This book-author relationship already exists.");
+
         _bookAuthors.Add(bookAuthor);
         _storage.Save(_bookAuthors);
         return bookAuthor;

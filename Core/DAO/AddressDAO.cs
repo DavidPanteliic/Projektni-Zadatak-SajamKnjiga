@@ -3,23 +3,26 @@ using BookFair.Core.Storage;
 
 namespace BookFair.Core.DAO;
 
+// Source: OISISI, Vezbe 3, CRUDExample (DAO pattern)
+
 // Klasa za pristup podacima o adresama.
 // Cuva listu adresa i koristi Storage za ucitavanje i cuvanje u fajl.
 public class AddressDAO
 {
     private readonly List<Address> _addresses;
     private readonly Storage<Address> _storage;
+    private int _nextId;
 
     public AddressDAO()
     {
         _storage = new Storage<Address>("addresses.txt");
         _addresses = _storage.Load();
+        _nextId = _addresses.Count == 0 ? 0 : _addresses.Max(a => a.Id) + 1;
     }
 
     private int GenerateId()
     {
-        if (_addresses.Count == 0) return 0;
-        return _addresses[^1].Id + 1;
+        return _nextId++;
     }
 
     public Address AddAddress(Address address)
