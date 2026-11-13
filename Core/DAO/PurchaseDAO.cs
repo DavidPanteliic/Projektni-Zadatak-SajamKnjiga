@@ -3,23 +3,26 @@ using BookFair.Core.Storage;
 
 namespace BookFair.Core.DAO;
 
+// Source: OISISI, Vezbe 3, CRUDExample (DAO pattern)
+
 // Klasa za pristup podacima o kupovinama.
 // Cuva listu kupovina i koristi Storage za ucitavanje i cuvanje u fajl.
 public class PurchaseDAO
 {
     private readonly List<Purchase> _purchases;
     private readonly Storage<Purchase> _storage;
+    private int _nextId;
 
     public PurchaseDAO()
     {
         _storage = new Storage<Purchase>("purchases.txt");
         _purchases = _storage.Load();
+        _nextId = _purchases.Count == 0 ? 0 : _purchases.Max(p => p.Id) + 1;
     }
 
     private int GenerateId()
     {
-        if (_purchases.Count == 0) return 0;
-        return _purchases[^1].Id + 1;
+        return _nextId++;
     }
 
     public Purchase AddPurchase(Purchase purchase)
