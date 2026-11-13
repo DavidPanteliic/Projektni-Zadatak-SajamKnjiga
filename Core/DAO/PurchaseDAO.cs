@@ -27,6 +27,9 @@ public class PurchaseDAO
 
     public Purchase AddPurchase(Purchase purchase)
     {
+        if (purchase.Rating < 1 || purchase.Rating > 5)
+            throw new ArgumentOutOfRangeException(nameof(purchase.Rating));
+
         purchase.Id = GenerateId();
         _purchases.Add(purchase);
         _storage.Save(_purchases);
@@ -37,6 +40,9 @@ public class PurchaseDAO
     {
         Purchase? oldPurchase = GetPurchaseById(purchase.Id);
         if (oldPurchase is null) return null;
+
+        if (purchase.Rating < 1 || purchase.Rating > 5)
+            throw new ArgumentOutOfRangeException(nameof(purchase.Rating));
 
         oldPurchase.VisitorId = purchase.VisitorId;
         oldPurchase.BookId = purchase.BookId;
