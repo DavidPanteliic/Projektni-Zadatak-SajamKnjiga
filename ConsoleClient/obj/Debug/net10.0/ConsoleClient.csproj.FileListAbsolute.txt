@@ -16,3 +16,4 @@ C:\Users\As\Desktop\BookFair\ConsoleClient\obj\Debug\net10.0\refint\ConsoleClien
 C:\Users\As\Desktop\BookFair\ConsoleClient\obj\Debug\net10.0\ConsoleClient.pdb
 C:\Users\As\Desktop\BookFair\ConsoleClient\obj\Debug\net10.0\ConsoleClient.genruntimeconfig.cache
 C:\Users\As\Desktop\BookFair\ConsoleClient\obj\Debug\net10.0\ref\ConsoleClient.dll
+C:\Users\As\Desktop\BookFair\ConsoleClient\obj\Debug\net10.0\ConsoleClient.sourcelink.json

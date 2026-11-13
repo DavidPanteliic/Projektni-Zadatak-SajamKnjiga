@@ -10,3 +10,4 @@ C:\Users\As\Desktop\BookFair\Core\obj\Debug\net10.0\refint\Core.dll
 C:\Users\As\Desktop\BookFair\Core\obj\Debug\net10.0\Core.pdb
 C:\Users\As\Desktop\BookFair\Core\obj\Debug\net10.0\ref\Core.dll
 C:\Users\As\Desktop\BookFair\Core\obj\Debug\net10.0\Core.csproj.Up2Date
+C:\Users\As\Desktop\BookFair\Core\obj\Debug\net10.0\Core.sourcelink.json

@@ -1,12 +1,69 @@
 {
   "Version": 1,
   "WorkspaceRootPath": "C:\\Users\\As\\Desktop\\BookFair\\",
-  "Documents": [],
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{E905EA93-D5E0-46E0-BC6F-3D6B104CDD23}|Core\\Core.csproj|c:\\users\\as\\desktop\\bookfair\\core\\dao\\visitordao.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E905EA93-D5E0-46E0-BC6F-3D6B104CDD23}|Core\\Core.csproj|solutionrelative:core\\dao\\visitordao.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E905EA93-D5E0-46E0-BC6F-3D6B104CDD23}|Core\\Core.csproj|c:\\users\\as\\desktop\\bookfair\\core\\dao\\publisherdao.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E905EA93-D5E0-46E0-BC6F-3D6B104CDD23}|Core\\Core.csproj|solutionrelative:core\\dao\\publisherdao.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E905EA93-D5E0-46E0-BC6F-3D6B104CDD23}|Core\\Core.csproj|c:\\users\\as\\desktop\\bookfair\\core\\dao\\purchasedao.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E905EA93-D5E0-46E0-BC6F-3D6B104CDD23}|Core\\Core.csproj|solutionrelative:core\\dao\\purchasedao.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
   "DocumentGroupContainers": [
     {
       "Orientation": 0,
       "VerticalTabListWidth": 256,
-      "DocumentGroups": []
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 0,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "VisitorDAO.cs",
+              "DocumentMoniker": "C:\\Users\\As\\Desktop\\BookFair\\Core\\DAO\\VisitorDAO.cs",
+              "RelativeDocumentMoniker": "Core\\DAO\\VisitorDAO.cs",
+              "ToolTip": "C:\\Users\\As\\Desktop\\BookFair\\Core\\DAO\\VisitorDAO.cs",
+              "RelativeToolTip": "Core\\DAO\\VisitorDAO.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-11-13T10:59:52.4Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "PurchaseDAO.cs",
+              "DocumentMoniker": "C:\\Users\\As\\Desktop\\BookFair\\Core\\DAO\\PurchaseDAO.cs",
+              "RelativeDocumentMoniker": "Core\\DAO\\PurchaseDAO.cs",
+              "ToolTip": "C:\\Users\\As\\Desktop\\BookFair\\Core\\DAO\\PurchaseDAO.cs",
+              "RelativeToolTip": "Core\\DAO\\PurchaseDAO.cs",
+              "ViewState": "AgIAACgAAAAAAAAAAAAwwE4AAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-11-13T10:59:18.018Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "PublisherDAO.cs",
+              "DocumentMoniker": "C:\\Users\\As\\Desktop\\BookFair\\Core\\DAO\\PublisherDAO.cs",
+              "RelativeDocumentMoniker": "Core\\DAO\\PublisherDAO.cs",
+              "ToolTip": "C:\\Users\\As\\Desktop\\BookFair\\Core\\DAO\\PublisherDAO.cs",
+              "RelativeToolTip": "Core\\DAO\\PublisherDAO.cs",
+              "ViewState": "AgIAABoAAAAAAAAAAAAwwCcAAAAVAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-11-13T10:58:26.541Z"
+            }
+          ]
+        }
+      ]
     }
   ]
 }
