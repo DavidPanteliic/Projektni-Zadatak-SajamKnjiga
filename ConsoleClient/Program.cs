@@ -1,5 +1,5 @@
 using System.Text;
+using BookFair.ConsoleClient.Views;
 
 Console.OutputEncoding = Encoding.UTF8;
-
-Console.WriteLine("BookFair");
+new MainConsoleView().RunMenu();
