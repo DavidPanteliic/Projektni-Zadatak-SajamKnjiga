@@ -1,4 +1,5 @@
 ﻿using BookFair.Core.DAO;
+using BookFair.Core.Services;
 
 namespace BookFair.ConsoleClient.Views;
 
@@ -15,14 +16,25 @@ public class MainConsoleView
 
     public MainConsoleView()
     {
-        _addressView = new AddressConsoleView(new AddressDAO());
-        _authorView = new AuthorConsoleView(new AuthorDAO());
-        _bookView = new BookConsoleView(new BookDAO());
-        _visitorView = new VisitorConsoleView(new VisitorDAO());
-        _purchaseView = new PurchaseConsoleView(new PurchaseDAO());
-        _publisherView = new PublisherConsoleView(new PublisherDAO());
-        _bookAuthorView = new BookAuthorConsoleView(new BookAuthorDAO());
-        _wishlistView = new WishlistItemConsoleView(new WishlistItemDAO());
+        // Svaki DAO se pravi samo jednom i deli izmedju prikaza,
+        // da bi svi prikazi videli iste podatke (npr. autora dodatog u ovoj sesiji)
+        AddressDAO addressDao = new AddressDAO();
+        AuthorDAO authorDao = new AuthorDAO();
+        BookDAO bookDao = new BookDAO();
+        VisitorDAO visitorDao = new VisitorDAO();
+        PurchaseDAO purchaseDao = new PurchaseDAO();
+        PublisherDAO publisherDao = new PublisherDAO();
+        BookAuthorDAO bookAuthorDao = new BookAuthorDAO();
+        WishlistItemDAO wishlistItemDao = new WishlistItemDAO();
+
+        _addressView = new AddressConsoleView(addressDao, visitorDao, authorDao);
+        _authorView = new AuthorConsoleView(authorDao, addressDao, bookAuthorDao, publisherDao);
+        _bookView = new BookConsoleView(bookDao, publisherDao, purchaseDao, bookAuthorDao, wishlistItemDao);
+        _visitorView = new VisitorConsoleView(visitorDao, addressDao, purchaseDao, wishlistItemDao);
+        _purchaseView = new PurchaseConsoleView(purchaseDao, visitorDao, bookDao);
+        _publisherView = new PublisherConsoleView(new PublisherService(publisherDao, authorDao, bookDao));
+        _bookAuthorView = new BookAuthorConsoleView(bookAuthorDao, bookDao, authorDao);
+        _wishlistView = new WishlistItemConsoleView(wishlistItemDao, visitorDao, bookDao);
     }
 
     public void RunMenu()

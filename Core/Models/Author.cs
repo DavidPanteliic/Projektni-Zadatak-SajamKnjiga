@@ -20,10 +20,8 @@ public class Author : ISerializable
     // Id adrese se serijalizuje
     public int AddressId { get; set; }
 
-    // Adresa se ne serijalizuje, popunjava se nakon ucitavanja
     public Address? Address { get; set; }
 
-    // Knjige se ne serijalizuju, popunjavaju se nakon ucitavanja (preko BookAuthor)
     public List<Book> Books { get; set; }
 
     public Author()

@@ -27,8 +27,11 @@ public class VisitorDAO
 
     public Visitor AddVisitor(Visitor visitor)
     {
+        _storage.Validate(visitor);
         if (GetVisitorByCardNumber(visitor.CardNumber) is not null)
-            throw new InvalidOperationException("A visitor with this card number already exists.");
+        {
+            throw new InvalidOperationException("Posetilac sa ovim brojem clanske karte vec postoji.");
+        }
 
         visitor.Id = GenerateId();
         _visitors.Add(visitor);
@@ -39,9 +42,16 @@ public class VisitorDAO
     public Visitor? UpdateVisitor(Visitor visitor)
     {
         Visitor? oldVisitor = GetVisitorById(visitor.Id);
-        if (oldVisitor is null) return null;
+        if (oldVisitor is null)
+        {
+            return null;
+        }
+
+        _storage.Validate(visitor);
         if (_visitors.Any(v => v.Id != visitor.Id && v.CardNumber == visitor.CardNumber))
-            throw new InvalidOperationException("A visitor with this card number already exists.");
+        {
+            throw new InvalidOperationException("Posetilac sa ovim brojem clanske karte vec postoji.");
+        }
 
         oldVisitor.CardNumber = visitor.CardNumber;
         oldVisitor.FirstName = visitor.FirstName;
@@ -60,7 +70,10 @@ public class VisitorDAO
     public Visitor? RemoveVisitor(int id)
     {
         Visitor? visitor = GetVisitorById(id);
-        if (visitor is null) return null;
+        if (visitor is null)
+        {
+            return null;
+        }
 
         _visitors.Remove(visitor);
         _storage.Save(_visitors);

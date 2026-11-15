@@ -21,7 +21,9 @@ public class BookAuthorDAO
     public BookAuthor AddBookAuthor(BookAuthor bookAuthor)
     {
         if (GetBookAuthor(bookAuthor.BookId, bookAuthor.AuthorId) is not null)
-            throw new InvalidOperationException("This book-author relationship already exists.");
+        {
+            throw new InvalidOperationException("Ova veza knjiga - autor vec postoji.");
+        }
 
         _bookAuthors.Add(bookAuthor);
         _storage.Save(_bookAuthors);
@@ -31,7 +33,10 @@ public class BookAuthorDAO
     public BookAuthor? RemoveBookAuthor(int bookId, int authorId)
     {
         BookAuthor? bookAuthor = GetBookAuthor(bookId, authorId);
-        if (bookAuthor is null) return null;
+        if (bookAuthor is null)
+        {
+            return null;
+        }
 
         _bookAuthors.Remove(bookAuthor);
         _storage.Save(_bookAuthors);

@@ -27,10 +27,8 @@ public class Visitor : ISerializable
     // Id adrese se serijalizuje
     public int AddressId { get; set; }
 
-    // Adresa se ne serijalizuje, popunjava se nakon ucitavanja
     public Address? Address { get; set; }
 
-    // Liste se ne serijalizuju, popunjavaju se nakon ucitavanja
     public List<Purchase> Purchases { get; set; } // preko Purchase.VisitorId
     public List<Book> Wishlist { get; set; }      // preko WishlistItem
 

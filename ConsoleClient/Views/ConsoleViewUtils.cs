@@ -5,6 +5,37 @@ namespace BookFair.ConsoleClient.Views;
 
 public static class ConsoleViewUtils
 {
+    private const char ForbiddenCharacter = '|';
+
+    // Tekst ne sme da sadrzi '|' jer je to separator u fajlovima.
+    // Obavezno polje ne sme biti prazno.
+    public static string SafeInputText(bool isRequired = true)
+    {
+        while (true)
+        {
+            string? line = Console.ReadLine();
+            if (line is null)
+            {
+                return string.Empty;
+            }
+
+            string input = line.Trim();
+            if (input.Contains(ForbiddenCharacter))
+            {
+                Console.Write($"Tekst ne sme da sadrzi znak '{ForbiddenCharacter}'. Unesi ponovo: ");
+                continue;
+            }
+
+            if (isRequired && input.Length == 0)
+            {
+                Console.Write("Polje je obavezno. Unesi ponovo: ");
+                continue;
+            }
+
+            return input;
+        }
+    }
+
     public static int SafeInputInt()
     {
         while (true)
@@ -13,6 +44,33 @@ public static class ConsoleViewUtils
             if (int.TryParse(input, out int number)) return number;
             Console.Write("Unesi ceo broj: ");
         }
+    }
+
+    // Trazi ID dok se ne unese ID zapisa koji postoji.
+    // exists proverava da li zapis sa datim ID postoji (npr. id => dao.GetBookById(id) is not null).
+    public static int SafeInputExistingId(Func<int, bool> exists)
+    {
+        while (true)
+        {
+            int id = SafeInputInt();
+            if (exists(id))
+            {
+                return id;
+            }
+
+            Console.Write("Ne postoji zapis sa tim ID. Unesi ponovo: ");
+        }
+    }
+
+    // Adresa za prikaz umesto ID-ja (koriste je posetioci i autori)
+    public static string AddressToText(Address? address)
+    {
+        if (address is null)
+        {
+            return "nepoznata";
+        }
+
+        return $"{address.Street} {address.Number}, {address.City}";
     }
 
     public static int? SafeInputOptionalInt()

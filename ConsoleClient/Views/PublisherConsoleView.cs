@@ -1,15 +1,15 @@
-﻿using BookFair.Core.DAO;
+﻿using BookFair.Core.Services;
 using BookFair.Core.Models;
 
 namespace BookFair.ConsoleClient.Views;
 
 public class PublisherConsoleView
 {
-    private readonly PublisherDAO _publisherDao;
+    private readonly PublisherService _publisherService;
 
-    public PublisherConsoleView(PublisherDAO publisherDao)
+    public PublisherConsoleView(PublisherService publisherService)
     {
-        _publisherDao = publisherDao;
+        _publisherService = publisherService;
     }
 
     public void RunMenu()
@@ -49,7 +49,7 @@ public class PublisherConsoleView
 
     private void ShowAllPublishers()
     {
-        List<Publisher> publishers = _publisherDao.GetAllPublishers();
+        List<Publisher> publishers = _publisherService.GetAllPublishers();
         if (publishers.Count == 0)
         {
             Console.WriteLine("Nema izdavaca.");
@@ -58,7 +58,7 @@ public class PublisherConsoleView
 
         foreach (Publisher publisher in publishers)
         {
-            Console.WriteLine($"ID: {publisher.Id}, SIFRA: {publisher.Code}, NAZIV: {publisher.Name}, SEF AUTOR ID: {publisher.HeadAuthorId?.ToString() ?? "nema"}");
+            Console.WriteLine($"ID: {publisher.Id}, SIFRA: {publisher.Code}, NAZIV: {publisher.Name}, SEF: {HeadAuthorToText(publisher)}");
         }
     }
 
@@ -67,7 +67,7 @@ public class PublisherConsoleView
         Publisher publisher = InputPublisher();
         try
         {
-            _publisherDao.AddPublisher(publisher);
+            _publisherService.AddPublisher(publisher);
             Console.WriteLine("Uspesno dodato.");
         }
         catch (InvalidOperationException ex)
@@ -80,7 +80,7 @@ public class PublisherConsoleView
     {
         Console.Write("ID izdavaca: ");
         int id = ConsoleViewUtils.SafeInputInt();
-        if (_publisherDao.GetPublisherById(id) is null)
+        if (_publisherService.GetPublisherById(id) is null)
         {
             Console.WriteLine("Nije pronadjeno.");
             return;
@@ -90,7 +90,7 @@ public class PublisherConsoleView
         publisher.Id = id;
         try
         {
-            Publisher? updated = _publisherDao.UpdatePublisher(publisher);
+            Publisher? updated = _publisherService.UpdatePublisher(publisher);
             Console.WriteLine(updated is null ? "Nije pronadjeno." : "Uspesno izmenjeno.");
         }
         catch (InvalidOperationException ex)
@@ -103,17 +103,35 @@ public class PublisherConsoleView
     {
         Console.Write("ID izdavaca: ");
         int id = ConsoleViewUtils.SafeInputInt();
-        Publisher? removed = _publisherDao.RemovePublisher(id);
-        Console.WriteLine(removed is null ? "Nije pronadjeno." : "Uspesno obrisano.");
+        try
+        {
+            Publisher? removed = _publisherService.RemovePublisher(id);
+            Console.WriteLine(removed is null ? "Nije pronadjeno." : "Uspesno obrisano.");
+        }
+        catch (InvalidOperationException ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
+    }
+
+    private string HeadAuthorToText(Publisher publisher)
+    {
+        if (publisher.HeadAuthorId is null)
+        {
+            return "nema";
+        }
+
+        Author? headAuthor = _publisherService.GetHeadAuthor(publisher);
+        return headAuthor is null ? "nepoznat" : $"{headAuthor.FirstName} {headAuthor.LastName}";
     }
 
     private Publisher InputPublisher()
     {
         Publisher publisher = new Publisher();
         Console.Write("Sifra izdavaca: ");
-        publisher.Code = Console.ReadLine() ?? string.Empty;
+        publisher.Code = ConsoleViewUtils.SafeInputText();
         Console.Write("Naziv: ");
-        publisher.Name = Console.ReadLine() ?? string.Empty;
+        publisher.Name = ConsoleViewUtils.SafeInputText();
         Console.Write("ID sefa-autora (prazno ako nema): ");
         publisher.HeadAuthorId = ConsoleViewUtils.SafeInputOptionalInt();
         return publisher;

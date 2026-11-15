@@ -12,10 +12,8 @@ public class Publisher : ISerializable
     // Id sefa se serijalizuje (null ako izdavac jos nema sefa)
     public int? HeadAuthorId { get; set; }
 
-    // Sef se ne serijalizuje, popunjava se nakon ucitavanja
     public Author? HeadAuthor { get; set; }
 
-    // Liste se ne serijalizuju, popunjavaju se nakon ucitavanja
     public List<Book> Books { get; set; }     // preko Book.PublisherId
     public List<Author> Authors { get; set; } // autori knjiga ovog izdavaca
 

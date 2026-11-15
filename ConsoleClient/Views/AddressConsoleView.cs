@@ -6,10 +6,14 @@ namespace BookFair.ConsoleClient.Views;
 public class AddressConsoleView
 {
     private readonly AddressDAO _addressDao;
+    private readonly VisitorDAO _visitorDao;
+    private readonly AuthorDAO _authorDao;
 
-    public AddressConsoleView(AddressDAO addressDao)
+    public AddressConsoleView(AddressDAO addressDao, VisitorDAO visitorDao, AuthorDAO authorDao)
     {
         _addressDao = addressDao;
+        _visitorDao = visitorDao;
+        _authorDao = authorDao;
     }
 
     public void RunMenu()
@@ -89,21 +93,47 @@ public class AddressConsoleView
     {
         Console.Write("ID adrese: ");
         int id = ConsoleViewUtils.SafeInputInt();
-        Address? removed = _addressDao.RemoveAddress(id);
-        Console.WriteLine(removed is null ? "Nije pronadjeno." : "Uspesno obrisano.");
+        if (_addressDao.GetAddressById(id) is null)
+        {
+            Console.WriteLine("Nije pronadjeno.");
+            return;
+        }
+
+        if (IsAddressInUse(id))
+        {
+            return;
+        }
+
+        _addressDao.RemoveAddress(id);
+        Console.WriteLine("Uspesno obrisano.");
+    }
+
+    // Adresa se ne brise dok je koristi neki posetilac ili autor,
+    // da oni ne bi ostali sa adresom koja ne postoji
+    private bool IsAddressInUse(int addressId)
+    {
+        int visitorCount = _visitorDao.GetAllVisitors().FindAll(v => v.AddressId == addressId).Count;
+        int authorCount = _authorDao.GetAllAuthors().FindAll(a => a.AddressId == addressId).Count;
+        if (visitorCount == 0 && authorCount == 0)
+        {
+            return false;
+        }
+
+        Console.WriteLine($"Adresa ne moze da se obrise jer je koriste drugi podaci (posetioci: {visitorCount}, autori: {authorCount}).");
+        return true;
     }
 
     private Address InputAddress()
     {
         Address address = new Address();
         Console.Write("Ulica: ");
-        address.Street = Console.ReadLine() ?? string.Empty;
+        address.Street = ConsoleViewUtils.SafeInputText();
         Console.Write("Broj: ");
-        address.Number = Console.ReadLine() ?? string.Empty;
+        address.Number = ConsoleViewUtils.SafeInputText();
         Console.Write("Grad: ");
-        address.City = Console.ReadLine() ?? string.Empty;
+        address.City = ConsoleViewUtils.SafeInputText();
         Console.Write("Drzava: ");
-        address.Country = Console.ReadLine() ?? string.Empty;
+        address.Country = ConsoleViewUtils.SafeInputText();
         return address;
     }
 }

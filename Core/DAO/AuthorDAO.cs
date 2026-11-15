@@ -27,8 +27,11 @@ public class AuthorDAO
 
     public Author AddAuthor(Author author)
     {
+        _storage.Validate(author);
         if (GetAuthorByIdCardNumber(author.IdCardNumber) is not null)
-            throw new InvalidOperationException("An author with this ID card number already exists.");
+        {
+            throw new InvalidOperationException("Autor sa ovim brojem licne karte vec postoji.");
+        }
 
         author.Id = GenerateId();
         _authors.Add(author);
@@ -39,9 +42,16 @@ public class AuthorDAO
     public Author? UpdateAuthor(Author author)
     {
         Author? oldAuthor = GetAuthorById(author.Id);
-        if (oldAuthor is null) return null;
+        if (oldAuthor is null)
+        {
+            return null;
+        }
+
+        _storage.Validate(author);
         if (_authors.Any(a => a.Id != author.Id && a.IdCardNumber == author.IdCardNumber))
-            throw new InvalidOperationException("An author with this ID card number already exists.");
+        {
+            throw new InvalidOperationException("Autor sa ovim brojem licne karte vec postoji.");
+        }
 
         oldAuthor.FirstName = author.FirstName;
         oldAuthor.LastName = author.LastName;
@@ -59,7 +69,10 @@ public class AuthorDAO
     public Author? RemoveAuthor(int id)
     {
         Author? author = GetAuthorById(id);
-        if (author is null) return null;
+        if (author is null)
+        {
+            return null;
+        }
 
         _authors.Remove(author);
         _storage.Save(_authors);

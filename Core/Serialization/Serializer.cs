@@ -37,11 +37,29 @@ public class Serializer<T> where T : ISerializable, new()
 
             string[] csvValues = line.Split(Delimiter);
             T obj = new T();
-            obj.FromCSV(csvValues);
+
+            // Pokvaren red (rucno izmenjen fajl, fali polje, los broj ili datum)
+            // se preskace, da ne bi srusio ceo program pri pokretanju
+            try
+            {
+                obj.FromCSV(csvValues);
+            }
+            catch (Exception ex) when (ex is FormatException or IndexOutOfRangeException
+                                           or OverflowException or ArgumentException)
+            {
+                continue;
+            }
+
             objects.Add(obj);
         }
 
         return objects;
+    }
+
+    // Provera pre izmene liste u DAO-u, da los objekat ne bi ostao u memoriji
+    public void Validate(T obj)
+    {
+        CheckValues(obj.ToCSV());
     }
 
     private static void CheckValues(string[] values)
@@ -51,7 +69,7 @@ public class Serializer<T> where T : ISerializable, new()
             if (value != null && (value.Contains(Delimiter) || value.Contains('\n') || value.Contains('\r')))
             {
                 throw new ArgumentException(
-                    $"Value \"{value}\" must not contain the '{Delimiter}' character or a line break.");
+                    $"Vrednost \"{value}\" ne sme da sadrzi znak '{Delimiter}' niti prelazak u novi red.");
             }
         }
     }

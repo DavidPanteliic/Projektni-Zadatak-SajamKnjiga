@@ -17,10 +17,8 @@ public class Book : ISerializable
     // Id izdavaca se serijalizuje
     public int PublisherId { get; set; }
 
-    // Izdavac se ne serijalizuje, popunjava se nakon ucitavanja
     public Publisher? Publisher { get; set; }
 
-    // Liste se ne serijalizuju, popunjavaju se nakon ucitavanja
     public List<Author> Authors { get; set; }          // preko BookAuthor
     public List<Visitor> Buyers { get; set; }          // preko Purchase
     public List<Visitor> WishlistVisitors { get; set; } // preko WishlistItem

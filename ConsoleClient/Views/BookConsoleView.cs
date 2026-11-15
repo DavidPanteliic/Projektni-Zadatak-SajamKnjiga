@@ -6,10 +6,19 @@ namespace BookFair.ConsoleClient.Views;
 public class BookConsoleView
 {
     private readonly BookDAO _bookDao;
+    private readonly PublisherDAO _publisherDao;
+    private readonly PurchaseDAO _purchaseDao;
+    private readonly BookAuthorDAO _bookAuthorDao;
+    private readonly WishlistItemDAO _wishlistItemDao;
 
-    public BookConsoleView(BookDAO bookDao)
+    public BookConsoleView(BookDAO bookDao, PublisherDAO publisherDao, PurchaseDAO purchaseDao,
+        BookAuthorDAO bookAuthorDao, WishlistItemDAO wishlistItemDao)
     {
         _bookDao = bookDao;
+        _publisherDao = publisherDao;
+        _purchaseDao = purchaseDao;
+        _bookAuthorDao = bookAuthorDao;
+        _wishlistItemDao = wishlistItemDao;
     }
 
     public void RunMenu()
@@ -58,12 +67,18 @@ public class BookConsoleView
 
         foreach (Book book in books)
         {
-            Console.WriteLine($"ID: {book.Id}, ISBN: {book.Isbn}, NASLOV: {book.Title}, ZANR: {book.Genre}, GODINA: {book.PublicationYear}, CENA: {book.Price:F2}, STRANA: {book.PageCount}, IZDAVAC ID: {book.PublisherId}");
+            string publisher = _publisherDao.GetPublisherById(book.PublisherId)?.Name ?? "nepoznat";
+            Console.WriteLine($"ID: {book.Id}, ISBN: {book.Isbn}, NASLOV: {book.Title}, ZANR: {book.Genre}, GODINA: {book.PublicationYear}, CENA: {book.Price:F2}, STRANA: {book.PageCount}, IZDAVAC: {publisher}");
         }
     }
 
     private void AddBook()
     {
+        if (!HasPublishers())
+        {
+            return;
+        }
+
         Book book = InputBook();
         try
         {
@@ -86,6 +101,11 @@ public class BookConsoleView
             return;
         }
 
+        if (!HasPublishers())
+        {
+            return;
+        }
+
         Book book = InputBook();
         book.Id = id;
         try
@@ -103,19 +123,58 @@ public class BookConsoleView
     {
         Console.Write("ID knjige: ");
         int id = ConsoleViewUtils.SafeInputInt();
-        Book? removed = _bookDao.RemoveBook(id);
-        Console.WriteLine(removed is null ? "Nije pronadjeno." : "Uspesno obrisano.");
+        if (_bookDao.GetBookById(id) is null)
+        {
+            Console.WriteLine("Nije pronadjeno.");
+            return;
+        }
+
+        if (IsBookInUse(id))
+        {
+            return;
+        }
+
+        _bookDao.RemoveBook(id);
+        Console.WriteLine("Uspesno obrisano.");
+    }
+
+    // Knjiga mora imati izdavaca, pa bez ijednog izdavaca ne moze da se unese
+    private bool HasPublishers()
+    {
+        if (_publisherDao.GetAllPublishers().Count > 0)
+        {
+            return true;
+        }
+
+        Console.WriteLine("Prvo dodaj bar jednog izdavaca.");
+        return false;
+    }
+
+    // Knjiga se ne brise dok je neko kupio, ima autore ili je na listi zelja,
+    // da te veze ne bi pokazivale na knjigu koja ne postoji
+    private bool IsBookInUse(int bookId)
+    {
+        int purchaseCount = _purchaseDao.GetPurchasesByBookId(bookId).Count;
+        int authorCount = _bookAuthorDao.GetBookAuthorsByBookId(bookId).Count;
+        int wishlistCount = _wishlistItemDao.GetWishlistItemsByBookId(bookId).Count;
+        if (purchaseCount == 0 && authorCount == 0 && wishlistCount == 0)
+        {
+            return false;
+        }
+
+        Console.WriteLine($"Knjiga ne moze da se obrise jer je povezana sa drugim podacima (kupovine: {purchaseCount}, autori: {authorCount}, liste zelja: {wishlistCount}).");
+        return true;
     }
 
     private Book InputBook()
     {
         Book book = new Book();
         Console.Write("ISBN: ");
-        book.Isbn = Console.ReadLine() ?? string.Empty;
+        book.Isbn = ConsoleViewUtils.SafeInputText();
         Console.Write("Naslov: ");
-        book.Title = Console.ReadLine() ?? string.Empty;
+        book.Title = ConsoleViewUtils.SafeInputText();
         Console.Write("Zanr: ");
-        book.Genre = Console.ReadLine() ?? string.Empty;
+        book.Genre = ConsoleViewUtils.SafeInputText();
         Console.Write("Godina izdanja: ");
         book.PublicationYear = ConsoleViewUtils.SafeInputInt();
         Console.Write("Cena: ");
@@ -123,7 +182,7 @@ public class BookConsoleView
         Console.Write("Broj strana: ");
         book.PageCount = ConsoleViewUtils.SafeInputInt();
         Console.Write("ID izdavaca: ");
-        book.PublisherId = ConsoleViewUtils.SafeInputInt();
+        book.PublisherId = ConsoleViewUtils.SafeInputExistingId(id => _publisherDao.GetPublisherById(id) is not null);
         return book;
     }
 }

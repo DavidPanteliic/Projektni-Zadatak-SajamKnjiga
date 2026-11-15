@@ -27,8 +27,11 @@ public class BookDAO
 
     public Book AddBook(Book book)
     {
+        _storage.Validate(book);
         if (GetBookByIsbn(book.Isbn) is not null)
-            throw new InvalidOperationException("A book with this ISBN already exists.");
+        {
+            throw new InvalidOperationException("Knjiga sa ovim ISBN brojem vec postoji.");
+        }
 
         book.Id = GenerateId();
         _books.Add(book);
@@ -39,9 +42,16 @@ public class BookDAO
     public Book? UpdateBook(Book book)
     {
         Book? oldBook = GetBookById(book.Id);
-        if (oldBook is null) return null;
+        if (oldBook is null)
+        {
+            return null;
+        }
+
+        _storage.Validate(book);
         if (_books.Any(b => b.Id != book.Id && b.Isbn == book.Isbn))
-            throw new InvalidOperationException("A book with this ISBN already exists.");
+        {
+            throw new InvalidOperationException("Knjiga sa ovim ISBN brojem vec postoji.");
+        }
 
         oldBook.Isbn = book.Isbn;
         oldBook.Title = book.Title;
@@ -58,7 +68,10 @@ public class BookDAO
     public Book? RemoveBook(int id)
     {
         Book? book = GetBookById(id);
-        if (book is null) return null;
+        if (book is null)
+        {
+            return null;
+        }
 
         _books.Remove(book);
         _storage.Save(_books);

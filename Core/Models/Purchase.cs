@@ -16,7 +16,6 @@ public class Purchase : ISerializable
     public int VisitorId { get; set; }
     public int BookId { get; set; }
 
-    // Posetilac i knjiga se ne serijalizuju, popunjavaju se nakon ucitavanja
     public Visitor? Visitor { get; set; }
     public Book? Book { get; set; }
 

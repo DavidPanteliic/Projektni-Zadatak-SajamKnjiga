@@ -6,10 +6,14 @@ namespace BookFair.ConsoleClient.Views;
 public class PurchaseConsoleView
 {
     private readonly PurchaseDAO _purchaseDao;
+    private readonly VisitorDAO _visitorDao;
+    private readonly BookDAO _bookDao;
 
-    public PurchaseConsoleView(PurchaseDAO purchaseDao)
+    public PurchaseConsoleView(PurchaseDAO purchaseDao, VisitorDAO visitorDao, BookDAO bookDao)
     {
         _purchaseDao = purchaseDao;
+        _visitorDao = visitorDao;
+        _bookDao = bookDao;
     }
 
     public void RunMenu()
@@ -58,12 +62,20 @@ public class PurchaseConsoleView
 
         foreach (Purchase purchase in purchases)
         {
-            Console.WriteLine($"ID: {purchase.Id}, POSETILAC ID: {purchase.VisitorId}, KNJIGA ID: {purchase.BookId}, DATUM: {purchase.PurchaseDate:dd.MM.yyyy}, OCENA: {purchase.Rating}, KOMENTAR: {purchase.Comment}");
+            Visitor? visitor = _visitorDao.GetVisitorById(purchase.VisitorId);
+            string visitorName = visitor is null ? "nepoznat" : $"{visitor.FirstName} {visitor.LastName}";
+            string bookTitle = _bookDao.GetBookById(purchase.BookId)?.Title ?? "nepoznata";
+            Console.WriteLine($"ID: {purchase.Id}, POSETILAC: {visitorName}, KNJIGA: {bookTitle}, DATUM: {purchase.PurchaseDate:dd.MM.yyyy}, OCENA: {purchase.Rating}, KOMENTAR: {purchase.Comment}");
         }
     }
 
     private void AddPurchase()
     {
+        if (!HasVisitorsAndBooks())
+        {
+            return;
+        }
+
         Purchase purchase = InputPurchase();
         _purchaseDao.AddPurchase(purchase);
         Console.WriteLine("Uspesno dodato.");
@@ -76,6 +88,11 @@ public class PurchaseConsoleView
         if (_purchaseDao.GetPurchaseById(id) is null)
         {
             Console.WriteLine("Nije pronadjeno.");
+            return;
+        }
+
+        if (!HasVisitorsAndBooks())
+        {
             return;
         }
 
@@ -93,19 +110,37 @@ public class PurchaseConsoleView
         Console.WriteLine(removed is null ? "Nije pronadjeno." : "Uspesno obrisano.");
     }
 
+    // Kupovina povezuje posetioca i knjigu, pa moraju postojati oba
+    private bool HasVisitorsAndBooks()
+    {
+        if (_visitorDao.GetAllVisitors().Count == 0)
+        {
+            Console.WriteLine("Prvo dodaj bar jednog posetioca.");
+            return false;
+        }
+
+        if (_bookDao.GetAllBooks().Count == 0)
+        {
+            Console.WriteLine("Prvo dodaj bar jednu knjigu.");
+            return false;
+        }
+
+        return true;
+    }
+
     private Purchase InputPurchase()
     {
         Purchase purchase = new Purchase();
         Console.Write("ID posetioca: ");
-        purchase.VisitorId = ConsoleViewUtils.SafeInputInt();
+        purchase.VisitorId = ConsoleViewUtils.SafeInputExistingId(id => _visitorDao.GetVisitorById(id) is not null);
         Console.Write("ID knjige: ");
-        purchase.BookId = ConsoleViewUtils.SafeInputInt();
+        purchase.BookId = ConsoleViewUtils.SafeInputExistingId(id => _bookDao.GetBookById(id) is not null);
         Console.Write("Datum kupovine (dd.MM.yyyy): ");
         purchase.PurchaseDate = ConsoleViewUtils.SafeInputDate();
         Console.Write("Ocena (1-5): ");
         purchase.Rating = ConsoleViewUtils.SafeInputRating();
         Console.Write("Komentar: ");
-        purchase.Comment = Console.ReadLine() ?? string.Empty;
+        purchase.Comment = ConsoleViewUtils.SafeInputText(isRequired: false);
         return purchase;
     }
 }

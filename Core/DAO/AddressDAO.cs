@@ -27,6 +27,8 @@ public class AddressDAO
 
     public Address AddAddress(Address address)
     {
+        _storage.Validate(address);
+
         address.Id = GenerateId();
         _addresses.Add(address);
         _storage.Save(_addresses);
@@ -36,7 +38,12 @@ public class AddressDAO
     public Address? UpdateAddress(Address address)
     {
         Address? oldAddress = GetAddressById(address.Id);
-        if (oldAddress is null) return null;
+        if (oldAddress is null)
+        {
+            return null;
+        }
+
+        _storage.Validate(address);
 
         oldAddress.Street = address.Street;
         oldAddress.Number = address.Number;
@@ -50,7 +57,10 @@ public class AddressDAO
     public Address? RemoveAddress(int id)
     {
         Address? address = GetAddressById(id);
-        if (address is null) return null;
+        if (address is null)
+        {
+            return null;
+        }
 
         _addresses.Remove(address);
         _storage.Save(_addresses);

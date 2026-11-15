@@ -6,10 +6,14 @@ namespace BookFair.ConsoleClient.Views;
 public class BookAuthorConsoleView
 {
     private readonly BookAuthorDAO _bookAuthorDao;
+    private readonly BookDAO _bookDao;
+    private readonly AuthorDAO _authorDao;
 
-    public BookAuthorConsoleView(BookAuthorDAO bookAuthorDao)
+    public BookAuthorConsoleView(BookAuthorDAO bookAuthorDao, BookDAO bookDao, AuthorDAO authorDao)
     {
         _bookAuthorDao = bookAuthorDao;
+        _bookDao = bookDao;
+        _authorDao = authorDao;
     }
 
     public void RunMenu()
@@ -54,19 +58,36 @@ public class BookAuthorConsoleView
             return;
         }
 
+        // ID je u zagradi jer je potreban za brisanje veze
         foreach (BookAuthor bookAuthor in bookAuthors)
         {
-            Console.WriteLine($"Veza: BookId = {bookAuthor.BookId}, AuthorId = {bookAuthor.AuthorId}");
+            string bookTitle = _bookDao.GetBookById(bookAuthor.BookId)?.Title ?? "nepoznata";
+            Author? author = _authorDao.GetAuthorById(bookAuthor.AuthorId);
+            string authorName = author is null ? "nepoznat" : $"{author.FirstName} {author.LastName}";
+            Console.WriteLine($"KNJIGA: {bookTitle} (ID {bookAuthor.BookId}), AUTOR: {authorName} (ID {bookAuthor.AuthorId})");
         }
     }
 
     private void AddBookAuthor()
     {
+        // Veza povezuje knjigu i autora, pa moraju postojati oba
+        if (_bookDao.GetAllBooks().Count == 0)
+        {
+            Console.WriteLine("Prvo dodaj bar jednu knjigu.");
+            return;
+        }
+
+        if (_authorDao.GetAllAuthors().Count == 0)
+        {
+            Console.WriteLine("Prvo dodaj bar jednog autora.");
+            return;
+        }
+
         Console.Write("ID knjige: ");
-        int firstId = ConsoleViewUtils.SafeInputInt();
+        int bookId = ConsoleViewUtils.SafeInputExistingId(id => _bookDao.GetBookById(id) is not null);
         Console.Write("ID autora: ");
-        int secondId = ConsoleViewUtils.SafeInputInt();
-        BookAuthor bookAuthor = new BookAuthor(firstId, secondId);
+        int authorId = ConsoleViewUtils.SafeInputExistingId(id => _authorDao.GetAuthorById(id) is not null);
+        BookAuthor bookAuthor = new BookAuthor(bookId, authorId);
 
         try
         {
@@ -82,10 +103,10 @@ public class BookAuthorConsoleView
     private void RemoveBookAuthor()
     {
         Console.Write("ID knjige: ");
-        int firstId = ConsoleViewUtils.SafeInputInt();
+        int bookId = ConsoleViewUtils.SafeInputInt();
         Console.Write("ID autora: ");
-        int secondId = ConsoleViewUtils.SafeInputInt();
-        BookAuthor? removed = _bookAuthorDao.RemoveBookAuthor(firstId, secondId);
+        int authorId = ConsoleViewUtils.SafeInputInt();
+        BookAuthor? removed = _bookAuthorDao.RemoveBookAuthor(bookId, authorId);
         Console.WriteLine(removed is null ? "Nije pronadjeno." : "Uspesno obrisano.");
     }
 }

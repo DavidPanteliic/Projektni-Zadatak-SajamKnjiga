@@ -27,8 +27,11 @@ public class PublisherDAO
 
     public Publisher AddPublisher(Publisher publisher)
     {
+        _storage.Validate(publisher);
         if (_publishers.Any(p => p.Code == publisher.Code))
-            throw new InvalidOperationException("A publisher with this code already exists.");
+        {
+            throw new InvalidOperationException("Izdavac sa ovom sifrom vec postoji.");
+        }
 
         publisher.Id = GenerateId();
         _publishers.Add(publisher);
@@ -39,9 +42,16 @@ public class PublisherDAO
     public Publisher? UpdatePublisher(Publisher publisher)
     {
         Publisher? oldPublisher = GetPublisherById(publisher.Id);
-        if (oldPublisher is null) return null;
+        if (oldPublisher is null)
+        {
+            return null;
+        }
+
+        _storage.Validate(publisher);
         if (_publishers.Any(p => p.Id != publisher.Id && p.Code == publisher.Code))
-            throw new InvalidOperationException("A publisher with this code already exists.");
+        {
+            throw new InvalidOperationException("Izdavac sa ovom sifrom vec postoji.");
+        }
 
         oldPublisher.Code = publisher.Code;
         oldPublisher.Name = publisher.Name;
@@ -54,7 +64,10 @@ public class PublisherDAO
     public Publisher? RemovePublisher(int id)
     {
         Publisher? publisher = GetPublisherById(id);
-        if (publisher is null) return null;
+        if (publisher is null)
+        {
+            return null;
+        }
 
         _publishers.Remove(publisher);
         _storage.Save(_publishers);

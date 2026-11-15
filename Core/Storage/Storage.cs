@@ -28,6 +28,11 @@ public class Storage<T> where T : ISerializable, new()
         return objects;
     }
 
+    public void Validate(T obj)
+    {
+        _serializer.Validate(obj);
+    }
+
     public void Save(List<T> objects)
     {
         string serializedObjects = _serializer.ToCSV(objects);

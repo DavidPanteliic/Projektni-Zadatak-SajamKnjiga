@@ -6,10 +6,14 @@ namespace BookFair.ConsoleClient.Views;
 public class WishlistItemConsoleView
 {
     private readonly WishlistItemDAO _wishlistItemDao;
+    private readonly VisitorDAO _visitorDao;
+    private readonly BookDAO _bookDao;
 
-    public WishlistItemConsoleView(WishlistItemDAO wishlistItemDao)
+    public WishlistItemConsoleView(WishlistItemDAO wishlistItemDao, VisitorDAO visitorDao, BookDAO bookDao)
     {
         _wishlistItemDao = wishlistItemDao;
+        _visitorDao = visitorDao;
+        _bookDao = bookDao;
     }
 
     public void RunMenu()
@@ -54,19 +58,36 @@ public class WishlistItemConsoleView
             return;
         }
 
+        // ID je u zagradi jer je potreban za brisanje veze
         foreach (WishlistItem wishlistItem in wishlistItems)
         {
-            Console.WriteLine($"Veza: VisitorId = {wishlistItem.VisitorId}, BookId = {wishlistItem.BookId}");
+            Visitor? visitor = _visitorDao.GetVisitorById(wishlistItem.VisitorId);
+            string visitorName = visitor is null ? "nepoznat" : $"{visitor.FirstName} {visitor.LastName}";
+            string bookTitle = _bookDao.GetBookById(wishlistItem.BookId)?.Title ?? "nepoznata";
+            Console.WriteLine($"POSETILAC: {visitorName} (ID {wishlistItem.VisitorId}), KNJIGA: {bookTitle} (ID {wishlistItem.BookId})");
         }
     }
 
     private void AddWishlistItem()
     {
+        // Veza povezuje posetioca i knjigu, pa moraju postojati oba
+        if (_visitorDao.GetAllVisitors().Count == 0)
+        {
+            Console.WriteLine("Prvo dodaj bar jednog posetioca.");
+            return;
+        }
+
+        if (_bookDao.GetAllBooks().Count == 0)
+        {
+            Console.WriteLine("Prvo dodaj bar jednu knjigu.");
+            return;
+        }
+
         Console.Write("ID posetioca: ");
-        int firstId = ConsoleViewUtils.SafeInputInt();
+        int visitorId = ConsoleViewUtils.SafeInputExistingId(id => _visitorDao.GetVisitorById(id) is not null);
         Console.Write("ID knjige: ");
-        int secondId = ConsoleViewUtils.SafeInputInt();
-        WishlistItem wishlistItem = new WishlistItem(firstId, secondId);
+        int bookId = ConsoleViewUtils.SafeInputExistingId(id => _bookDao.GetBookById(id) is not null);
+        WishlistItem wishlistItem = new WishlistItem(visitorId, bookId);
 
         try
         {
@@ -82,10 +103,10 @@ public class WishlistItemConsoleView
     private void RemoveWishlistItem()
     {
         Console.Write("ID posetioca: ");
-        int firstId = ConsoleViewUtils.SafeInputInt();
+        int visitorId = ConsoleViewUtils.SafeInputInt();
         Console.Write("ID knjige: ");
-        int secondId = ConsoleViewUtils.SafeInputInt();
-        WishlistItem? removed = _wishlistItemDao.RemoveWishlistItem(firstId, secondId);
+        int bookId = ConsoleViewUtils.SafeInputInt();
+        WishlistItem? removed = _wishlistItemDao.RemoveWishlistItem(visitorId, bookId);
         Console.WriteLine(removed is null ? "Nije pronadjeno." : "Uspesno obrisano.");
     }
 }

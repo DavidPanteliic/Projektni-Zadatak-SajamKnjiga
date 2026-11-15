@@ -21,7 +21,9 @@ public class WishlistItemDAO
     public WishlistItem AddWishlistItem(WishlistItem wishlistItem)
     {
         if (GetWishlistItem(wishlistItem.VisitorId, wishlistItem.BookId) is not null)
-            throw new InvalidOperationException("This wishlist entry already exists.");
+        {
+            throw new InvalidOperationException("Ova knjiga je vec na listi zelja posetioca.");
+        }
 
         _wishlistItems.Add(wishlistItem);
         _storage.Save(_wishlistItems);
@@ -31,7 +33,10 @@ public class WishlistItemDAO
     public WishlistItem? RemoveWishlistItem(int visitorId, int bookId)
     {
         WishlistItem? wishlistItem = GetWishlistItem(visitorId, bookId);
-        if (wishlistItem is null) return null;
+        if (wishlistItem is null)
+        {
+            return null;
+        }
 
         _wishlistItems.Remove(wishlistItem);
         _storage.Save(_wishlistItems);

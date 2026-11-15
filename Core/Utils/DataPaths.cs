@@ -26,6 +26,6 @@ public static class DataPaths
             directory = directory.Parent;
         }
 
-        return Path.Combine(AppContext.BaseDirectory, DataFolderName);
+        return AppContext.BaseDirectory.TrimEnd(Path.DirectorySeparatorChar) + Path.DirectorySeparatorChar + DataFolderName;
     }
 }

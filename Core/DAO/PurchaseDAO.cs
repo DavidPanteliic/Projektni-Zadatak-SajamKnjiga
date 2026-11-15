@@ -9,6 +9,9 @@ namespace BookFair.Core.DAO;
 // Cuva listu kupovina i koristi Storage za ucitavanje i cuvanje u fajl.
 public class PurchaseDAO
 {
+    private const int MinRating = 1;
+    private const int MaxRating = 5;
+
     private readonly List<Purchase> _purchases;
     private readonly Storage<Purchase> _storage;
     private int _nextId;
@@ -27,8 +30,8 @@ public class PurchaseDAO
 
     public Purchase AddPurchase(Purchase purchase)
     {
-        if (purchase.Rating < 1 || purchase.Rating > 5)
-            throw new ArgumentOutOfRangeException(nameof(purchase.Rating));
+        _storage.Validate(purchase);
+        CheckRating(purchase.Rating);
 
         purchase.Id = GenerateId();
         _purchases.Add(purchase);
@@ -39,10 +42,13 @@ public class PurchaseDAO
     public Purchase? UpdatePurchase(Purchase purchase)
     {
         Purchase? oldPurchase = GetPurchaseById(purchase.Id);
-        if (oldPurchase is null) return null;
+        if (oldPurchase is null)
+        {
+            return null;
+        }
 
-        if (purchase.Rating < 1 || purchase.Rating > 5)
-            throw new ArgumentOutOfRangeException(nameof(purchase.Rating));
+        _storage.Validate(purchase);
+        CheckRating(purchase.Rating);
 
         oldPurchase.VisitorId = purchase.VisitorId;
         oldPurchase.BookId = purchase.BookId;
@@ -57,7 +63,10 @@ public class PurchaseDAO
     public Purchase? RemovePurchase(int id)
     {
         Purchase? purchase = GetPurchaseById(id);
-        if (purchase is null) return null;
+        if (purchase is null)
+        {
+            return null;
+        }
 
         _purchases.Remove(purchase);
         _storage.Save(_purchases);
@@ -84,5 +93,13 @@ public class PurchaseDAO
     public List<Purchase> GetPurchasesByBookId(int bookId)
     {
         return _purchases.FindAll(p => p.BookId == bookId);
+    }
+
+    private static void CheckRating(int rating)
+    {
+        if (rating < MinRating || rating > MaxRating)
+        {
+            throw new ArgumentOutOfRangeException(nameof(rating), $"Ocena mora biti od {MinRating} do {MaxRating}.");
+        }
     }
 }
