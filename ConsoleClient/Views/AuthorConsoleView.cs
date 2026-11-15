@@ -191,6 +191,11 @@ public class AuthorConsoleView
 
         Author author = InputAuthor();
         author.Id = id;
+        if (IsHeadExperienceTooLow(author))
+        {
+            return;
+        }
+
         try
         {
             Author? updated = _authorDao.UpdateAuthor(author);
@@ -245,6 +250,21 @@ public class AuthorConsoleView
         }
 
         Console.WriteLine($"Autor ne moze da se obrise jer je povezan sa drugim podacima (knjige: {bookCount}, sef izdavaca: {publisherCount}).");
+        return true;
+    }
+
+    // Sef izdavaca mora imati najmanje 5 godina iskustva,
+    // pa mu se iskustvo ne sme smanjiti ispod toga ni preko izmene autora
+    private bool IsHeadExperienceTooLow(Author author)
+    {
+        List<Publisher> headOf = _publisherDao.GetAllPublishers().FindAll(p => p.HeadAuthorId == author.Id);
+        if (headOf.Count == 0 || author.YearsOfExperience >= PublisherService.MinHeadAuthorExperience)
+        {
+            return false;
+        }
+
+        string names = string.Join(", ", headOf.Select(p => p.Name));
+        Console.WriteLine($"Autor je sef izdavaca ({names}) i mora imati najmanje {PublisherService.MinHeadAuthorExperience} godina iskustva.");
         return true;
     }
 

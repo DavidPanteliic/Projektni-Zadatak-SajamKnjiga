@@ -8,7 +8,7 @@ namespace BookFair.Core.Services;
 // a izdavac koji ima knjige ne moze da se obrise
 public class PublisherService
 {
-    private const int MinHeadAuthorExperience = 5;
+    public const int MinHeadAuthorExperience = 5;
 
     private readonly PublisherDAO _publisherDao;
     private readonly AuthorDAO _authorDao;
