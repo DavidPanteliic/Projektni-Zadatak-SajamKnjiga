@@ -27,14 +27,19 @@ public class MainConsoleView
         BookAuthorDAO bookAuthorDao = new BookAuthorDAO();
         WishlistItemDAO wishlistItemDao = new WishlistItemDAO();
 
+        // Puni liste u modelima (author.Books, visitor.Purchases, ...) iz ucitanih podataka
+        LinkService linkService = new LinkService(addressDao, authorDao, bookDao, visitorDao,
+            purchaseDao, publisherDao, bookAuthorDao, wishlistItemDao);
+        linkService.LinkAll();
+
         _addressView = new AddressConsoleView(addressDao, visitorDao, authorDao);
-        _authorView = new AuthorConsoleView(authorDao, addressDao, bookAuthorDao, publisherDao);
-        _bookView = new BookConsoleView(bookDao, publisherDao, purchaseDao, bookAuthorDao, wishlistItemDao);
-        _visitorView = new VisitorConsoleView(visitorDao, addressDao, purchaseDao, wishlistItemDao);
-        _purchaseView = new PurchaseConsoleView(purchaseDao, visitorDao, bookDao);
-        _publisherView = new PublisherConsoleView(new PublisherService(publisherDao, authorDao, bookDao));
-        _bookAuthorView = new BookAuthorConsoleView(bookAuthorDao, bookDao, authorDao);
-        _wishlistView = new WishlistItemConsoleView(wishlistItemDao, visitorDao, bookDao);
+        _authorView = new AuthorConsoleView(authorDao, addressDao, bookAuthorDao, publisherDao, bookDao, linkService);
+        _bookView = new BookConsoleView(bookDao, publisherDao, purchaseDao, bookAuthorDao, wishlistItemDao, linkService);
+        _visitorView = new VisitorConsoleView(visitorDao, addressDao, purchaseDao, wishlistItemDao, bookDao, linkService);
+        _purchaseView = new PurchaseConsoleView(purchaseDao, visitorDao, bookDao, linkService);
+        _publisherView = new PublisherConsoleView(new PublisherService(publisherDao, authorDao, bookDao), linkService);
+        _bookAuthorView = new BookAuthorConsoleView(bookAuthorDao, bookDao, authorDao, linkService);
+        _wishlistView = new WishlistItemConsoleView(wishlistItemDao, visitorDao, bookDao, linkService);
     }
 
     public void RunMenu()

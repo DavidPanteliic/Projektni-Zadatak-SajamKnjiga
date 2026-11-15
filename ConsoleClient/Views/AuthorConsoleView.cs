@@ -1,5 +1,6 @@
 ﻿using BookFair.Core.DAO;
 using BookFair.Core.Models;
+using BookFair.Core.Services;
 
 namespace BookFair.ConsoleClient.Views;
 
@@ -9,13 +10,18 @@ public class AuthorConsoleView
     private readonly AddressDAO _addressDao;
     private readonly BookAuthorDAO _bookAuthorDao;
     private readonly PublisherDAO _publisherDao;
+    private readonly BookDAO _bookDao;
+    private readonly LinkService _linkService;
 
-    public AuthorConsoleView(AuthorDAO authorDao, AddressDAO addressDao, BookAuthorDAO bookAuthorDao, PublisherDAO publisherDao)
+    public AuthorConsoleView(AuthorDAO authorDao, AddressDAO addressDao, BookAuthorDAO bookAuthorDao,
+        PublisherDAO publisherDao, BookDAO bookDao, LinkService linkService)
     {
         _authorDao = authorDao;
         _addressDao = addressDao;
         _bookAuthorDao = bookAuthorDao;
         _publisherDao = publisherDao;
+        _bookDao = bookDao;
+        _linkService = linkService;
     }
 
     public void RunMenu()
@@ -26,6 +32,8 @@ public class AuthorConsoleView
             string userInput = Console.ReadLine() ?? "0";
             if (userInput == "0") return;
             HandleMenuInput(userInput);
+            // Posle svake izmene liste u modelima moraju da prate podatke
+            _linkService.LinkAll();
         }
     }
 
@@ -37,6 +45,7 @@ public class AuthorConsoleView
         Console.WriteLine("2 - Dodaj");
         Console.WriteLine("3 - Izmeni");
         Console.WriteLine("4 - Obrisi");
+        Console.WriteLine("5 - Knjige autora");
         Console.WriteLine("0 - Nazad");
         Console.Write("Izbor: ");
     }
@@ -49,8 +58,85 @@ public class AuthorConsoleView
             case "2": AddAuthor(); break;
             case "3": UpdateAuthor(); break;
             case "4": RemoveAuthor(); break;
+            case "5": RunAuthorBooksMenu(); break;
             default: Console.WriteLine("Nepoznata opcija."); break;
         }
+    }
+
+    // Knjige autora se vide i menjaju unutar autora (spisak knjiga je atribut autora)
+    private void RunAuthorBooksMenu()
+    {
+        Console.Write("ID autora: ");
+        int id = ConsoleViewUtils.SafeInputInt();
+        Author? author = _authorDao.GetAuthorById(id);
+        if (author is null)
+        {
+            Console.WriteLine("Nije pronadjeno.");
+            return;
+        }
+
+        while (true)
+        {
+            Console.WriteLine();
+            Console.WriteLine($"=== KNJIGE AUTORA: {author.FirstName} {author.LastName} ===");
+            ShowAuthorBooks(author);
+            Console.WriteLine("1 - Dodaj knjigu");
+            Console.WriteLine("2 - Ukloni knjigu");
+            Console.WriteLine("0 - Nazad");
+            Console.Write("Izbor: ");
+            string userInput = Console.ReadLine() ?? "0";
+            if (userInput == "0") return;
+
+            switch (userInput)
+            {
+                case "1": AddBookToAuthor(author); break;
+                case "2": RemoveBookFromAuthor(author); break;
+                default: Console.WriteLine("Nepoznata opcija."); break;
+            }
+        }
+    }
+
+    private void ShowAuthorBooks(Author author)
+    {
+        if (author.Books.Count == 0)
+        {
+            Console.WriteLine("Autor nema knjiga.");
+            return;
+        }
+
+        foreach (Book book in author.Books)
+        {
+            Console.WriteLine($"ID: {book.Id}, ISBN: {book.Isbn}, NASLOV: {book.Title}, GODINA: {book.PublicationYear}");
+        }
+    }
+
+    private void AddBookToAuthor(Author author)
+    {
+        if (_bookDao.GetAllBooks().Count == 0)
+        {
+            Console.WriteLine("Prvo dodaj bar jednu knjigu.");
+            return;
+        }
+
+        Console.Write("ID knjige: ");
+        int bookId = ConsoleViewUtils.SafeInputExistingId(id => _bookDao.GetBookById(id) is not null);
+        try
+        {
+            _linkService.AddBookAuthor(bookId, author.Id);
+            Console.WriteLine("Uspesno dodato.");
+        }
+        catch (InvalidOperationException ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
+    }
+
+    private void RemoveBookFromAuthor(Author author)
+    {
+        Console.Write("ID knjige: ");
+        int bookId = ConsoleViewUtils.SafeInputInt();
+        BookAuthor? removed = _linkService.RemoveBookAuthor(bookId, author.Id);
+        Console.WriteLine(removed is null ? "Autor nema tu knjigu." : "Uspesno uklonjeno.");
     }
 
     private void ShowAllAuthors()

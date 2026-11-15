@@ -1,5 +1,6 @@
 ﻿using BookFair.Core.DAO;
 using BookFair.Core.Models;
+using BookFair.Core.Services;
 
 namespace BookFair.ConsoleClient.Views;
 
@@ -8,12 +9,14 @@ public class PurchaseConsoleView
     private readonly PurchaseDAO _purchaseDao;
     private readonly VisitorDAO _visitorDao;
     private readonly BookDAO _bookDao;
+    private readonly LinkService _linkService;
 
-    public PurchaseConsoleView(PurchaseDAO purchaseDao, VisitorDAO visitorDao, BookDAO bookDao)
+    public PurchaseConsoleView(PurchaseDAO purchaseDao, VisitorDAO visitorDao, BookDAO bookDao, LinkService linkService)
     {
         _purchaseDao = purchaseDao;
         _visitorDao = visitorDao;
         _bookDao = bookDao;
+        _linkService = linkService;
     }
 
     public void RunMenu()
@@ -24,6 +27,8 @@ public class PurchaseConsoleView
             string userInput = Console.ReadLine() ?? "0";
             if (userInput == "0") return;
             HandleMenuInput(userInput);
+            // Nova ili obrisana kupovina menja visitor.Purchases i prosecnu ocenu
+            _linkService.LinkAll();
         }
     }
 

@@ -1,19 +1,25 @@
 ﻿using BookFair.Core.DAO;
 using BookFair.Core.Models;
+using BookFair.Core.Services;
 
 namespace BookFair.ConsoleClient.Views;
 
+// Pregled svih lista zelja na jednom mestu.
+// Dodavanje i brisanje ide preko LinkService, isto kao iz menija "Lista zelja" kod posetioca,
+// pa se promena odmah vidi i u visitor.Wishlist i book.WishlistVisitors.
 public class WishlistItemConsoleView
 {
     private readonly WishlistItemDAO _wishlistItemDao;
     private readonly VisitorDAO _visitorDao;
     private readonly BookDAO _bookDao;
+    private readonly LinkService _linkService;
 
-    public WishlistItemConsoleView(WishlistItemDAO wishlistItemDao, VisitorDAO visitorDao, BookDAO bookDao)
+    public WishlistItemConsoleView(WishlistItemDAO wishlistItemDao, VisitorDAO visitorDao, BookDAO bookDao, LinkService linkService)
     {
         _wishlistItemDao = wishlistItemDao;
         _visitorDao = visitorDao;
         _bookDao = bookDao;
+        _linkService = linkService;
     }
 
     public void RunMenu()
@@ -87,11 +93,10 @@ public class WishlistItemConsoleView
         int visitorId = ConsoleViewUtils.SafeInputExistingId(id => _visitorDao.GetVisitorById(id) is not null);
         Console.Write("ID knjige: ");
         int bookId = ConsoleViewUtils.SafeInputExistingId(id => _bookDao.GetBookById(id) is not null);
-        WishlistItem wishlistItem = new WishlistItem(visitorId, bookId);
 
         try
         {
-            _wishlistItemDao.AddWishlistItem(wishlistItem);
+            _linkService.AddWishlistItem(visitorId, bookId);
             Console.WriteLine("Uspesno dodato.");
         }
         catch (InvalidOperationException ex)
@@ -106,7 +111,7 @@ public class WishlistItemConsoleView
         int visitorId = ConsoleViewUtils.SafeInputInt();
         Console.Write("ID knjige: ");
         int bookId = ConsoleViewUtils.SafeInputInt();
-        WishlistItem? removed = _wishlistItemDao.RemoveWishlistItem(visitorId, bookId);
+        WishlistItem? removed = _linkService.RemoveWishlistItem(visitorId, bookId);
         Console.WriteLine(removed is null ? "Nije pronadjeno." : "Uspesno obrisano.");
     }
 }

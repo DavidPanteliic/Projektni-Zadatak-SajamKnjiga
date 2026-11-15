@@ -1,5 +1,6 @@
 ﻿using BookFair.Core.DAO;
 using BookFair.Core.Models;
+using BookFair.Core.Services;
 
 namespace BookFair.ConsoleClient.Views;
 
@@ -10,15 +11,17 @@ public class BookConsoleView
     private readonly PurchaseDAO _purchaseDao;
     private readonly BookAuthorDAO _bookAuthorDao;
     private readonly WishlistItemDAO _wishlistItemDao;
+    private readonly LinkService _linkService;
 
     public BookConsoleView(BookDAO bookDao, PublisherDAO publisherDao, PurchaseDAO purchaseDao,
-        BookAuthorDAO bookAuthorDao, WishlistItemDAO wishlistItemDao)
+        BookAuthorDAO bookAuthorDao, WishlistItemDAO wishlistItemDao, LinkService linkService)
     {
         _bookDao = bookDao;
         _publisherDao = publisherDao;
         _purchaseDao = purchaseDao;
         _bookAuthorDao = bookAuthorDao;
         _wishlistItemDao = wishlistItemDao;
+        _linkService = linkService;
     }
 
     public void RunMenu()
@@ -29,6 +32,8 @@ public class BookConsoleView
             string userInput = Console.ReadLine() ?? "0";
             if (userInput == "0") return;
             HandleMenuInput(userInput);
+            // Posle svake izmene liste u modelima moraju da prate podatke
+            _linkService.LinkAll();
         }
     }
 
@@ -68,7 +73,10 @@ public class BookConsoleView
         foreach (Book book in books)
         {
             string publisher = _publisherDao.GetPublisherById(book.PublisherId)?.Name ?? "nepoznat";
-            Console.WriteLine($"ID: {book.Id}, ISBN: {book.Isbn}, NASLOV: {book.Title}, ZANR: {book.Genre}, GODINA: {book.PublicationYear}, CENA: {book.Price:F2}, STRANA: {book.PageCount}, IZDAVAC: {publisher}");
+            string authors = book.Authors.Count == 0
+                ? "nema"
+                : string.Join(", ", book.Authors.Select(author => $"{author.FirstName} {author.LastName}"));
+            Console.WriteLine($"ID: {book.Id}, ISBN: {book.Isbn}, NASLOV: {book.Title}, ZANR: {book.Genre}, GODINA: {book.PublicationYear}, CENA: {book.Price:F2}, STRANA: {book.PageCount}, IZDAVAC: {publisher}, AUTORI: {authors}");
         }
     }
 

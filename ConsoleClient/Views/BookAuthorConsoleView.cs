@@ -1,19 +1,25 @@
 ﻿using BookFair.Core.DAO;
 using BookFair.Core.Models;
+using BookFair.Core.Services;
 
 namespace BookFair.ConsoleClient.Views;
 
+// Pregled svih veza knjiga - autor na jednom mestu.
+// Dodavanje i brisanje ide preko LinkService, isto kao iz menija "Knjige autora",
+// pa se veza odmah vidi i u author.Books i book.Authors.
 public class BookAuthorConsoleView
 {
     private readonly BookAuthorDAO _bookAuthorDao;
     private readonly BookDAO _bookDao;
     private readonly AuthorDAO _authorDao;
+    private readonly LinkService _linkService;
 
-    public BookAuthorConsoleView(BookAuthorDAO bookAuthorDao, BookDAO bookDao, AuthorDAO authorDao)
+    public BookAuthorConsoleView(BookAuthorDAO bookAuthorDao, BookDAO bookDao, AuthorDAO authorDao, LinkService linkService)
     {
         _bookAuthorDao = bookAuthorDao;
         _bookDao = bookDao;
         _authorDao = authorDao;
+        _linkService = linkService;
     }
 
     public void RunMenu()
@@ -87,11 +93,10 @@ public class BookAuthorConsoleView
         int bookId = ConsoleViewUtils.SafeInputExistingId(id => _bookDao.GetBookById(id) is not null);
         Console.Write("ID autora: ");
         int authorId = ConsoleViewUtils.SafeInputExistingId(id => _authorDao.GetAuthorById(id) is not null);
-        BookAuthor bookAuthor = new BookAuthor(bookId, authorId);
 
         try
         {
-            _bookAuthorDao.AddBookAuthor(bookAuthor);
+            _linkService.AddBookAuthor(bookId, authorId);
             Console.WriteLine("Uspesno dodato.");
         }
         catch (InvalidOperationException ex)
@@ -106,7 +111,7 @@ public class BookAuthorConsoleView
         int bookId = ConsoleViewUtils.SafeInputInt();
         Console.Write("ID autora: ");
         int authorId = ConsoleViewUtils.SafeInputInt();
-        BookAuthor? removed = _bookAuthorDao.RemoveBookAuthor(bookId, authorId);
+        BookAuthor? removed = _linkService.RemoveBookAuthor(bookId, authorId);
         Console.WriteLine(removed is null ? "Nije pronadjeno." : "Uspesno obrisano.");
     }
 }
